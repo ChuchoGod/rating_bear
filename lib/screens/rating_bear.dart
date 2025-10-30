@@ -16,6 +16,8 @@ class _RatingBearScreenState extends State<RatingBearScreen> {
   SMITrigger? trigSuccess; // Se emociona
   SMITrigger? trigFail; // Se pone triste
 
+  Artboard? _artboard;
+
   int rating = 0;
 
   @override
@@ -25,6 +27,8 @@ class _RatingBearScreenState extends State<RatingBearScreen> {
   }
 
   void _onRiveInit(Artboard artboard) {
+    _artboard = artboard;
+
     controller = StateMachineController.fromArtboard(
       artboard,
       "Login Machine",
@@ -39,16 +43,27 @@ class _RatingBearScreenState extends State<RatingBearScreen> {
     trigFail = controller!.findSMI('trigFail') as SMITrigger?;
   }
 
+  void _resetAndPlayAnimation() {
+    if (_artboard != null && controller != null) {
+      _artboard!.removeController(controller!);
+      _artboard!.addController(controller!);
+    }
+  }
+
   void _onStarTap(int starIndex) {
     setState(() {
       rating = starIndex;
     });
 
-    if (starIndex >= 4) {
-      trigSuccess?.fire();
-    } else if (starIndex <= 2) {
-      trigFail?.fire();
-    }
+    _resetAndPlayAnimation();
+
+    Future.delayed(const Duration(milliseconds: 50), () {
+      if (starIndex >= 4) {
+        trigSuccess?.fire();
+      } else if (starIndex <= 2) {
+        trigFail?.fire();
+      }
+    });
   }
 
   @override
@@ -72,9 +87,7 @@ class _RatingBearScreenState extends State<RatingBearScreen> {
                     onInit: _onRiveInit,
                   ),
                 ),
-
                 const SizedBox(height: 32),
-
                 const Text(
                   '¿Disfrutando de Sounter?',
                   style: TextStyle(
@@ -83,9 +96,7 @@ class _RatingBearScreenState extends State<RatingBearScreen> {
                     color: Colors.black87,
                   ),
                 ),
-
                 const SizedBox(height: 16),
-
                 const Text(
                   '¿Con cuántas estrellas calificarías tu experiencia?\nToca una estrella para calificar',
                   textAlign: TextAlign.center,
@@ -95,9 +106,7 @@ class _RatingBearScreenState extends State<RatingBearScreen> {
                     height: 1.5,
                   ),
                 ),
-
                 const SizedBox(height: 32),
-
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: List.generate(5, (index) {
@@ -119,27 +128,14 @@ class _RatingBearScreenState extends State<RatingBearScreen> {
                     );
                   }),
                 ),
-
                 const SizedBox(height: 40),
-
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: rating > 0
-                        ? () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                    '¡Gracias por calificar con $rating estrellas!'),
-                                backgroundColor: Colors.green,
-                              ),
-                            );
-                          }
-                        : null,
+                    onPressed: null,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF5B4CFF),
-                      disabledBackgroundColor: Colors.grey[300],
-                      foregroundColor: Colors.white,
+                      disabledBackgroundColor: const Color(0xFF5B4CFF),
+                      disabledForegroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
@@ -155,13 +151,9 @@ class _RatingBearScreenState extends State<RatingBearScreen> {
                     ),
                   ),
                 ),
-
                 const SizedBox(height: 16),
-
                 TextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
+                  onPressed: null,
                   child: const Text(
                     'NO GRACIAS',
                     style: TextStyle(
